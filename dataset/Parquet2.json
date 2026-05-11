@@ -1,0 +1,48 @@
+{
+	"name": "Parquet2",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_Practoadls",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"File_Name": {
+				"type": "string"
+			},
+			"File_Path": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "@dataset().File_Name",
+					"type": "Expression"
+				},
+				"fileSystem": {
+					"value": "@dataset().File_Path",
+					"type": "Expression"
+				}
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": [
+			{
+				"name": "ProductSubcategoryKey",
+				"type": "UTF8"
+			},
+			{
+				"name": "SubcategoryName",
+				"type": "UTF8"
+			},
+			{
+				"name": "ProductCategoryKey",
+				"type": "UTF8"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

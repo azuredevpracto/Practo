@@ -1,0 +1,22 @@
+{
+	"name": "03-Curated_to_Gold",
+	"properties": {
+		"activities": [
+			{
+				"name": "Wait1",
+				"type": "Wait",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"waitTimeInSeconds": 1
+				}
+			}
+		],
+		"folder": {
+			"name": "AW-Practo_1"
+		},
+		"annotations": [],
+		"lastPublishTime": "2026-04-26T16:50:32Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

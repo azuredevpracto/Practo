@@ -1,0 +1,15 @@
+{
+	"name": "PractoDevADF",
+	"properties": {
+		"trustModeClaimForMi": {
+			"value": "Enabled",
+			"editable": true
+		}
+	},
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "603d2630-3716-4636-a589-c45e0ef51f4a",
+		"tenantId": "a25c5fbd-de1a-4793-9234-8e17da52d82c"
+	}
+}

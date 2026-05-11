@@ -1,0 +1,20 @@
+{
+	"name": "LS_PractoSQLDB",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "AzureSqlDatabase",
+		"typeProperties": {
+			"server": "practodevsql.database.windows.net",
+			"database": "Practo_Dev_DB",
+			"encrypt": "mandatory",
+			"trustServerCertificate": true,
+			"authenticationType": "SQL",
+			"userName": "Azure_Dev_Practo",
+			"alwaysEncryptedSettings": {
+				"alwaysEncryptedAkvAuthType": "ManagedIdentity"
+			},
+			"encryptedCredential": "ew0KICAiVmVyc2lvbiI6ICIyMDE3LTExLTMwIiwNCiAgIlByb3RlY3Rpb25Nb2RlIjogIktleSIsDQogICJTZWNyZXRDb250ZW50VHlwZSI6ICJQbGFpbnRleHQiLA0KICAiQ3JlZGVudGlhbElkIjogIkRBVEFGQUNUT1JZQDhFMzk3RkI2LTQzODAtNDgwQy05QUIwLTk2OURFMjUwQ0VENF81OTFmMmM0MC1iYTQ3LTQ0Y2ItOWUzZS02YThmYTY3NTUwNTAiDQp9"
+		}
+	}
+}

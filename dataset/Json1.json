@@ -1,0 +1,71 @@
+{
+	"name": "Json1",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_Practoadls",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"File_Name": {
+				"type": "string"
+			},
+			"File_Path": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "@dataset().File_Name",
+					"type": "Expression"
+				},
+				"fileSystem": {
+					"value": "@dataset().File_Path",
+					"type": "Expression"
+				}
+			}
+		},
+		"schema": {
+			"type": "object",
+			"properties": {
+				"ProductKey": {
+					"type": "string"
+				},
+				"ProductSubcategoryKey": {
+					"type": "string"
+				},
+				"ProductSKU": {
+					"type": "string"
+				},
+				"ProductName": {
+					"type": "string"
+				},
+				"ModelName": {
+					"type": "string"
+				},
+				"ProductDescription": {
+					"type": "string"
+				},
+				"ProductColor": {
+					"type": "string"
+				},
+				"ProductSize": {
+					"type": "string"
+				},
+				"ProductStyle": {
+					"type": "string"
+				},
+				"ProductCost": {
+					"type": "string"
+				},
+				"ProductPrice": {
+					"type": "string"
+				}
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

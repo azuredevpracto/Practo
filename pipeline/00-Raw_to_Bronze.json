@@ -1,0 +1,433 @@
+{
+	"name": "00-Raw_to_Bronze",
+	"properties": {
+		"description": "Metadata-driven ingestion pipeline that copies data from ADLS Gen2 Raw layer to Bronze layer, converting various source formats into standardized Parquet files.",
+		"activities": [
+			{
+				"name": "SQL_to_Parquet",
+				"description": "This copy activity transfers data from a table in the Azure database to the bronze layer, converting it into Parquet format during the process.",
+				"type": "Copy",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "ParquetSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "ParquetWriteSettings"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "AzureSqlTable1",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "Parquet1",
+						"type": "DatasetReference",
+						"parameters": {
+							"File_Name": "Calendar.parquet"
+						}
+					}
+				]
+			},
+			{
+				"name": "Switch1",
+				"description": "",
+				"type": "Switch",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"on": {
+						"value": "@pipeline().parameters.Format",
+						"type": "Expression"
+					},
+					"cases": [
+						{
+							"value": "Excel",
+							"activities": [
+								{
+									"name": "Excel_to_Parquet",
+									"description": "This copy activity transfers data from a Excel file in the raw layer to the bronze layer, converting it into Parquet format during the process.",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "ExcelSource",
+											"storeSettings": {
+												"type": "AzureBlobFSReadSettings",
+												"recursive": true,
+												"enablePartitionDiscovery": false
+											}
+										},
+										"sink": {
+											"type": "ParquetSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "ParquetWriteSettings"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "Excel1",
+											"type": "DatasetReference",
+											"parameters": {
+												"File_Name": {
+													"value": "@pipeline().parameters.Raw_File_Name",
+													"type": "Expression"
+												},
+												"File_Path": {
+													"value": "@pipeline().parameters.Raw_File_Path",
+													"type": "Expression"
+												},
+												"Sheet_Name": {
+													"value": "@pipeline().parameters.Sheet_Name",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "Parquet1",
+											"type": "DatasetReference",
+											"parameters": {
+												"File_Name": {
+													"value": "@pipeline().parameters.Bronze_File_Name",
+													"type": "Expression"
+												},
+												"File_Path": {
+													"value": "@pipeline().parameters.Bronze_File_Path",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								}
+							]
+						},
+						{
+							"value": "parquet",
+							"activities": [
+								{
+									"name": "Parquet_to_Parquet",
+									"description": "This copy activity transfers data from a Parquet file in the raw layer to the bronze layer, converting it into Parquet format during the process.",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "ParquetSource",
+											"storeSettings": {
+												"type": "AzureBlobFSReadSettings",
+												"recursive": true,
+												"enablePartitionDiscovery": false
+											},
+											"formatSettings": {
+												"type": "ParquetReadSettings"
+											}
+										},
+										"sink": {
+											"type": "ParquetSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "ParquetWriteSettings"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "Parquet2",
+											"type": "DatasetReference",
+											"parameters": {
+												"File_Name": {
+													"value": "@pipeline().parameters.Raw_File_Name",
+													"type": "Expression"
+												},
+												"File_Path": {
+													"value": "@pipeline().parameters.Raw_File_Path",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "Parquet1",
+											"type": "DatasetReference",
+											"parameters": {
+												"File_Name": {
+													"value": "@pipeline().parameters.Bronze_File_Name",
+													"type": "Expression"
+												},
+												"File_Path": {
+													"value": "@pipeline().parameters.Bronze_File_Path",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								}
+							]
+						},
+						{
+							"value": "Delimited",
+							"activities": [
+								{
+									"name": "Text_to_Parquet",
+									"description": "This copy activity transfers data from a delimited file in the raw layer to the bronze layer, converting it into Parquet format during the process.",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "DelimitedTextSource",
+											"storeSettings": {
+												"type": "AzureBlobFSReadSettings",
+												"recursive": true,
+												"enablePartitionDiscovery": false
+											},
+											"formatSettings": {
+												"type": "DelimitedTextReadSettings"
+											}
+										},
+										"sink": {
+											"type": "ParquetSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "ParquetWriteSettings"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "DelimitedText1",
+											"type": "DatasetReference",
+											"parameters": {
+												"File_Name": {
+													"value": "@pipeline().parameters.Raw_File_Name",
+													"type": "Expression"
+												},
+												"Delimiter": {
+													"value": "@pipeline().parameters.Delimiter",
+													"type": "Expression"
+												},
+												"File_Path": {
+													"value": "@pipeline().parameters.Raw_File_Path",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "Parquet1",
+											"type": "DatasetReference",
+											"parameters": {
+												"File_Name": {
+													"value": "@pipeline().parameters.Bronze_File_Name",
+													"type": "Expression"
+												},
+												"File_Path": {
+													"value": "@pipeline().parameters.Bronze_File_Path",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								}
+							]
+						},
+						{
+							"value": "json",
+							"activities": [
+								{
+									"name": "JSON_to_Parquet",
+									"description": "This copy activity transfers data from a JSON file in the raw layer to the bronze layer, converting it into Parquet format during the process.",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "JsonSource",
+											"storeSettings": {
+												"type": "AzureBlobFSReadSettings",
+												"recursive": true,
+												"enablePartitionDiscovery": false
+											},
+											"formatSettings": {
+												"type": "JsonReadSettings"
+											}
+										},
+										"sink": {
+											"type": "ParquetSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "ParquetWriteSettings"
+											}
+										},
+										"enableStaging": false
+									},
+									"inputs": [
+										{
+											"referenceName": "Json1",
+											"type": "DatasetReference",
+											"parameters": {
+												"File_Name": {
+													"value": "@pipeline().parameters.Raw_File_Name",
+													"type": "Expression"
+												},
+												"File_Path": {
+													"value": "@pipeline().parameters.Raw_File_Path",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "Parquet1",
+											"type": "DatasetReference",
+											"parameters": {
+												"File_Name": {
+													"value": "@pipeline().parameters.Bronze_File_Name",
+													"type": "Expression"
+												},
+												"File_Path": {
+													"value": "@pipeline().parameters.Bronze_File_Path",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								}
+							]
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"Raw_File_Name": {
+				"type": "string"
+			},
+			"Raw_File_Path": {
+				"type": "string"
+			},
+			"Delimiter": {
+				"type": "string"
+			},
+			"Bronze_File_Path": {
+				"type": "string"
+			},
+			"Bronze_File_Name": {
+				"type": "string"
+			},
+			"Sheet_Name": {
+				"type": "string"
+			},
+			"Format": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "AW-Practo_1"
+		},
+		"annotations": [],
+		"lastPublishTime": "2026-05-05T16:35:45Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

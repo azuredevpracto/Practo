@@ -1,0 +1,80 @@
+{
+	"name": "ConfigSQL",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_PractoSQLDB",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "FileID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "FileName",
+				"type": "varchar"
+			},
+			{
+				"name": "Delimiter",
+				"type": "varchar"
+			},
+			{
+				"name": "Format",
+				"type": "varchar"
+			},
+			{
+				"name": "SheetName",
+				"type": "varchar"
+			},
+			{
+				"name": "SheetPosition",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "RawPath",
+				"type": "varchar"
+			},
+			{
+				"name": "BronzePath",
+				"type": "varchar"
+			},
+			{
+				"name": "BronzeFileName",
+				"type": "varchar"
+			},
+			{
+				"name": "SilverSchema",
+				"type": "varchar"
+			},
+			{
+				"name": "SilverTableName",
+				"type": "varchar"
+			},
+			{
+				"name": "CreatedBy",
+				"type": "varchar"
+			},
+			{
+				"name": "CreatedDate",
+				"type": "date"
+			},
+			{
+				"name": "UpdatedBy",
+				"type": "varchar"
+			},
+			{
+				"name": "UpdatedDate",
+				"type": "date"
+			}
+		],
+		"typeProperties": {
+			"schema": "CTRL",
+			"table": "FileMetadata"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

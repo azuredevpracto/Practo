@@ -1,0 +1,95 @@
+{
+	"name": "Excel1",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_Practoadls",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"File_Name": {
+				"type": "string"
+			},
+			"File_Path": {
+				"type": "string"
+			},
+			"Sheet_Name": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "Excel",
+		"typeProperties": {
+			"sheetName": {
+				"value": "@dataset().Sheet_Name",
+				"type": "Expression"
+			},
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "@dataset().File_Name",
+					"type": "Expression"
+				},
+				"fileSystem": {
+					"value": "@dataset().File_Path",
+					"type": "Expression"
+				}
+			},
+			"firstRowAsHeader": true
+		},
+		"schema": [
+			{
+				"name": "CustomerKey",
+				"type": "String"
+			},
+			{
+				"name": "Prefix",
+				"type": "String"
+			},
+			{
+				"name": "FirstName",
+				"type": "String"
+			},
+			{
+				"name": "LastName",
+				"type": "String"
+			},
+			{
+				"name": "BirthDate",
+				"type": "String"
+			},
+			{
+				"name": "MaritalStatus",
+				"type": "String"
+			},
+			{
+				"name": "Gender",
+				"type": "String"
+			},
+			{
+				"name": "EmailAddress",
+				"type": "String"
+			},
+			{
+				"name": "AnnualIncome",
+				"type": "String"
+			},
+			{
+				"name": "TotalChildren",
+				"type": "String"
+			},
+			{
+				"name": "EducationLevel",
+				"type": "String"
+			},
+			{
+				"name": "Occupation",
+				"type": "String"
+			},
+			{
+				"name": "HomeOwner",
+				"type": "String"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

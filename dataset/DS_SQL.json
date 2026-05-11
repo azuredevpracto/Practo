@@ -1,0 +1,88 @@
+{
+	"name": "DS_SQL",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_PractoSQLDB",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"Schema_Name": {
+				"type": "string"
+			},
+			"Table_Name": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "CustomerKey",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "Prefix",
+				"type": "varchar"
+			},
+			{
+				"name": "FirstName",
+				"type": "varchar"
+			},
+			{
+				"name": "LastName",
+				"type": "varchar"
+			},
+			{
+				"name": "BirthDate",
+				"type": "date"
+			},
+			{
+				"name": "MaritalStatus",
+				"type": "char"
+			},
+			{
+				"name": "Gender",
+				"type": "char"
+			},
+			{
+				"name": "EmailAddress",
+				"type": "varchar"
+			},
+			{
+				"name": "AnnualIncome",
+				"type": "decimal",
+				"precision": 12,
+				"scale": 2
+			},
+			{
+				"name": "TotalChildren",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "EducationLevel",
+				"type": "varchar"
+			},
+			{
+				"name": "Occupation",
+				"type": "varchar"
+			},
+			{
+				"name": "HomeOwner",
+				"type": "char"
+			}
+		],
+		"typeProperties": {
+			"schema": {
+				"value": "@dataset().Schema_Name",
+				"type": "Expression"
+			},
+			"table": {
+				"value": "@dataset().Table_Name",
+				"type": "Expression"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

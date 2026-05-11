@@ -1,0 +1,22 @@
+{
+	"name": "AzureSqlTable1",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_PractoSQLDB",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "Date",
+				"type": "nvarchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "aw",
+			"table": "Calendar"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

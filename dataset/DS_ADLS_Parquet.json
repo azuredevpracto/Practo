@@ -1,0 +1,82 @@
+{
+	"name": "DS_ADLS_Parquet",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_Practoadls",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"File_Name": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "@dataset().File_Name",
+					"type": "Expression"
+				},
+				"fileSystem": "bronze"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": [
+			{
+				"name": "CustomerKey",
+				"type": "UTF8"
+			},
+			{
+				"name": "Prefix",
+				"type": "UTF8"
+			},
+			{
+				"name": "FirstName",
+				"type": "UTF8"
+			},
+			{
+				"name": "LastName",
+				"type": "UTF8"
+			},
+			{
+				"name": "BirthDate",
+				"type": "UTF8"
+			},
+			{
+				"name": "MaritalStatus",
+				"type": "UTF8"
+			},
+			{
+				"name": "Gender",
+				"type": "UTF8"
+			},
+			{
+				"name": "EmailAddress",
+				"type": "UTF8"
+			},
+			{
+				"name": "AnnualIncome",
+				"type": "UTF8"
+			},
+			{
+				"name": "TotalChildren",
+				"type": "UTF8"
+			},
+			{
+				"name": "EducationLevel",
+				"type": "UTF8"
+			},
+			{
+				"name": "Occupation",
+				"type": "UTF8"
+			},
+			{
+				"name": "HomeOwner",
+				"type": "UTF8"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

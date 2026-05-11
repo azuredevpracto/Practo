@@ -1,0 +1,148 @@
+{
+	"name": "Master",
+	"properties": {
+		"activities": [
+			{
+				"name": "Config_Lookup",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "ConfigSQL",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "ForEach1",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Config_Lookup",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Config_Lookup').output.value",
+						"type": "Expression"
+					},
+					"isSequential": false,
+					"batchCount": 20,
+					"activities": [
+						{
+							"name": "Exec_Raw_to_Bronze",
+							"type": "ExecutePipeline",
+							"dependsOn": [],
+							"policy": {
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "00-Raw_to_Bronze",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": false,
+								"parameters": {
+									"Raw_File_Name": {
+										"value": "@item().FileName",
+										"type": "Expression"
+									},
+									"Raw_File_Path": {
+										"value": "@item().RawPath",
+										"type": "Expression"
+									},
+									"Delimiter": {
+										"value": "@item().Delimiter",
+										"type": "Expression"
+									},
+									"Bronze_File_Path": {
+										"value": "@item().BronzePath",
+										"type": "Expression"
+									},
+									"Bronze_File_Name": {
+										"value": "@item().BronzeFileName",
+										"type": "Expression"
+									},
+									"Sheet_Name": {
+										"value": "@item().SheetName",
+										"type": "Expression"
+									},
+									"Format": {
+										"value": "@item().Format",
+										"type": "Expression"
+									}
+								}
+							}
+						},
+						{
+							"name": "Exec_Bronze_to_Silver",
+							"type": "ExecutePipeline",
+							"dependsOn": [
+								{
+									"activity": "Exec_Raw_to_Bronze",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "01-Bronze_to_Silver",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true,
+								"parameters": {
+									"Bronze_File_Path": {
+										"value": "@item().BronzePath",
+										"type": "Expression"
+									},
+									"Bronze_File_Name": {
+										"value": "@item().BronzeFileName",
+										"type": "Expression"
+									},
+									"Silver_Schema_Name": {
+										"value": "@item().SilverSchema",
+										"type": "Expression"
+									},
+									"Silver_Table_Name": {
+										"value": "@item().SilverTableName",
+										"type": "Expression"
+									}
+								}
+							}
+						}
+					]
+				}
+			}
+		],
+		"folder": {
+			"name": "AW-Practo_1"
+		},
+		"annotations": [],
+		"lastPublishTime": "2026-05-08T17:59:07Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}
