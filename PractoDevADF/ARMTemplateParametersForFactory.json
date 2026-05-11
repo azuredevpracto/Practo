@@ -1,0 +1,27 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "PractoDevADF"
+		},
+		"LS_PractoSQLDB_password": {
+			"value": ""
+		},
+		"LS_Practoadls_accountKey": {
+			"value": ""
+		},
+		"LS_PractoSQLDB_properties_typeProperties_server": {
+			"value": "practodevsql.database.windows.net"
+		},
+		"LS_PractoSQLDB_properties_typeProperties_database": {
+			"value": "Practo_Dev_DB"
+		},
+		"LS_PractoSQLDB_properties_typeProperties_userName": {
+			"value": "Azure_Dev_Practo"
+		},
+		"LS_Practoadls_properties_typeProperties_url": {
+			"value": "https://practodevadls.dfs.core.windows.net/"
+		}
+	}
+}

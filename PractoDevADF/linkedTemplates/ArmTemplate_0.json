@@ -1,0 +1,1433 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "PractoDevADF"
+		},
+		"LS_PractoSQLDB_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'LS_PractoSQLDB'"
+		},
+		"LS_Practoadls_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'LS_Practoadls'"
+		},
+		"LS_PractoSQLDB_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "practodevsql.database.windows.net"
+		},
+		"LS_PractoSQLDB_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "Practo_Dev_DB"
+		},
+		"LS_PractoSQLDB_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "Azure_Dev_Practo"
+		},
+		"LS_Practoadls_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://practodevadls.dfs.core.windows.net/"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/02-Silver_to_Gold')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Wait1",
+						"type": "Wait",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 1
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "AW-Practo_1"
+				},
+				"annotations": [],
+				"lastPublishTime": "2026-04-26T16:50:32Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LS_PractoSQLDB')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureSqlDatabase",
+				"typeProperties": {
+					"server": "[parameters('LS_PractoSQLDB_properties_typeProperties_server')]",
+					"database": "[parameters('LS_PractoSQLDB_properties_typeProperties_database')]",
+					"encrypt": "mandatory",
+					"trustServerCertificate": true,
+					"authenticationType": "SQL",
+					"userName": "[parameters('LS_PractoSQLDB_properties_typeProperties_userName')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('LS_PractoSQLDB_password')]"
+					},
+					"alwaysEncryptedSettings": {
+						"alwaysEncryptedAkvAuthType": "ManagedIdentity"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LS_Practoadls')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('LS_Practoadls_properties_typeProperties_url')]",
+					"accountKey": {
+						"type": "SecureString",
+						"value": "[parameters('LS_Practoadls_accountKey')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureSqlTable1')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_PractoSQLDB",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "Date",
+						"type": "nvarchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "aw",
+					"table": "Calendar"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_PractoSQLDB')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ConfigSQL')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_PractoSQLDB",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "FileID",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "FileName",
+						"type": "varchar"
+					},
+					{
+						"name": "Delimiter",
+						"type": "varchar"
+					},
+					{
+						"name": "Format",
+						"type": "varchar"
+					},
+					{
+						"name": "SheetName",
+						"type": "varchar"
+					},
+					{
+						"name": "SheetPosition",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "RawPath",
+						"type": "varchar"
+					},
+					{
+						"name": "BronzePath",
+						"type": "varchar"
+					},
+					{
+						"name": "BronzeFileName",
+						"type": "varchar"
+					},
+					{
+						"name": "SilverSchema",
+						"type": "varchar"
+					},
+					{
+						"name": "SilverTableName",
+						"type": "varchar"
+					},
+					{
+						"name": "CreatedBy",
+						"type": "varchar"
+					},
+					{
+						"name": "CreatedDate",
+						"type": "date"
+					},
+					{
+						"name": "UpdatedBy",
+						"type": "varchar"
+					},
+					{
+						"name": "UpdatedDate",
+						"type": "date"
+					}
+				],
+				"typeProperties": {
+					"schema": "CTRL",
+					"table": "FileMetadata"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_PractoSQLDB')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DS_ADLS_Parquet')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_Practoadls",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"File_Name": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@dataset().File_Name",
+							"type": "Expression"
+						},
+						"fileSystem": "bronze"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "CustomerKey",
+						"type": "UTF8"
+					},
+					{
+						"name": "Prefix",
+						"type": "UTF8"
+					},
+					{
+						"name": "FirstName",
+						"type": "UTF8"
+					},
+					{
+						"name": "LastName",
+						"type": "UTF8"
+					},
+					{
+						"name": "BirthDate",
+						"type": "UTF8"
+					},
+					{
+						"name": "MaritalStatus",
+						"type": "UTF8"
+					},
+					{
+						"name": "Gender",
+						"type": "UTF8"
+					},
+					{
+						"name": "EmailAddress",
+						"type": "UTF8"
+					},
+					{
+						"name": "AnnualIncome",
+						"type": "UTF8"
+					},
+					{
+						"name": "TotalChildren",
+						"type": "UTF8"
+					},
+					{
+						"name": "EducationLevel",
+						"type": "UTF8"
+					},
+					{
+						"name": "Occupation",
+						"type": "UTF8"
+					},
+					{
+						"name": "HomeOwner",
+						"type": "UTF8"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_Practoadls')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DS_SQL')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_PractoSQLDB",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"Schema_Name": {
+						"type": "string"
+					},
+					"Table_Name": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "CustomerKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Prefix",
+						"type": "varchar"
+					},
+					{
+						"name": "FirstName",
+						"type": "varchar"
+					},
+					{
+						"name": "LastName",
+						"type": "varchar"
+					},
+					{
+						"name": "BirthDate",
+						"type": "date"
+					},
+					{
+						"name": "MaritalStatus",
+						"type": "char"
+					},
+					{
+						"name": "Gender",
+						"type": "char"
+					},
+					{
+						"name": "EmailAddress",
+						"type": "varchar"
+					},
+					{
+						"name": "AnnualIncome",
+						"type": "decimal",
+						"precision": 12,
+						"scale": 2
+					},
+					{
+						"name": "TotalChildren",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "EducationLevel",
+						"type": "varchar"
+					},
+					{
+						"name": "Occupation",
+						"type": "varchar"
+					},
+					{
+						"name": "HomeOwner",
+						"type": "char"
+					}
+				],
+				"typeProperties": {
+					"schema": {
+						"value": "@dataset().Schema_Name",
+						"type": "Expression"
+					},
+					"table": {
+						"value": "@dataset().Table_Name",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_PractoSQLDB')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DelimitedText1')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_Practoadls",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"File_Name": {
+						"type": "string"
+					},
+					"Delimiter": {
+						"type": "string"
+					},
+					"File_Path": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@dataset().File_Name",
+							"type": "Expression"
+						},
+						"fileSystem": {
+							"value": "@dataset().File_Path",
+							"type": "Expression"
+						}
+					},
+					"columnDelimiter": {
+						"value": "@dataset().Delimiter",
+						"type": "Expression"
+					},
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "ProductCategoryKey|CategoryName",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_Practoadls')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Excel1')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_Practoadls",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"File_Name": {
+						"type": "string"
+					},
+					"File_Path": {
+						"type": "string"
+					},
+					"Sheet_Name": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "Excel",
+				"typeProperties": {
+					"sheetName": {
+						"value": "@dataset().Sheet_Name",
+						"type": "Expression"
+					},
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@dataset().File_Name",
+							"type": "Expression"
+						},
+						"fileSystem": {
+							"value": "@dataset().File_Path",
+							"type": "Expression"
+						}
+					},
+					"firstRowAsHeader": true
+				},
+				"schema": [
+					{
+						"name": "CustomerKey",
+						"type": "String"
+					},
+					{
+						"name": "Prefix",
+						"type": "String"
+					},
+					{
+						"name": "FirstName",
+						"type": "String"
+					},
+					{
+						"name": "LastName",
+						"type": "String"
+					},
+					{
+						"name": "BirthDate",
+						"type": "String"
+					},
+					{
+						"name": "MaritalStatus",
+						"type": "String"
+					},
+					{
+						"name": "Gender",
+						"type": "String"
+					},
+					{
+						"name": "EmailAddress",
+						"type": "String"
+					},
+					{
+						"name": "AnnualIncome",
+						"type": "String"
+					},
+					{
+						"name": "TotalChildren",
+						"type": "String"
+					},
+					{
+						"name": "EducationLevel",
+						"type": "String"
+					},
+					{
+						"name": "Occupation",
+						"type": "String"
+					},
+					{
+						"name": "HomeOwner",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_Practoadls')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Json1')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_Practoadls",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"File_Name": {
+						"type": "string"
+					},
+					"File_Path": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@dataset().File_Name",
+							"type": "Expression"
+						},
+						"fileSystem": {
+							"value": "@dataset().File_Path",
+							"type": "Expression"
+						}
+					}
+				},
+				"schema": {
+					"type": "object",
+					"properties": {
+						"ProductKey": {
+							"type": "string"
+						},
+						"ProductSubcategoryKey": {
+							"type": "string"
+						},
+						"ProductSKU": {
+							"type": "string"
+						},
+						"ProductName": {
+							"type": "string"
+						},
+						"ModelName": {
+							"type": "string"
+						},
+						"ProductDescription": {
+							"type": "string"
+						},
+						"ProductColor": {
+							"type": "string"
+						},
+						"ProductSize": {
+							"type": "string"
+						},
+						"ProductStyle": {
+							"type": "string"
+						},
+						"ProductCost": {
+							"type": "string"
+						},
+						"ProductPrice": {
+							"type": "string"
+						}
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_Practoadls')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Parquet1')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_Practoadls",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"File_Name": {
+						"type": "string"
+					},
+					"File_Path": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@dataset().File_Name",
+							"type": "Expression"
+						},
+						"fileSystem": {
+							"value": "@dataset().File_Path",
+							"type": "Expression"
+						}
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_Practoadls')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Parquet2')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_Practoadls",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"File_Name": {
+						"type": "string"
+					},
+					"File_Path": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@dataset().File_Name",
+							"type": "Expression"
+						},
+						"fileSystem": {
+							"value": "@dataset().File_Path",
+							"type": "Expression"
+						}
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "ProductSubcategoryKey",
+						"type": "UTF8"
+					},
+					{
+						"name": "SubcategoryName",
+						"type": "UTF8"
+					},
+					{
+						"name": "ProductCategoryKey",
+						"type": "UTF8"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_Practoadls')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/00-Raw_to_Bronze')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Metadata-driven ingestion pipeline that copies data from ADLS Gen2 Raw layer to Bronze layer, converting various source formats into standardized Parquet files.",
+				"activities": [
+					{
+						"name": "SQL_to_Parquet",
+						"description": "This copy activity transfers data from a table in the Azure database to the bronze layer, converting it into Parquet format during the process.",
+						"type": "Copy",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "ParquetSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "ParquetWriteSettings"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "AzureSqlTable1",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Parquet1",
+								"type": "DatasetReference",
+								"parameters": {
+									"File_Name": "Calendar.parquet"
+								}
+							}
+						]
+					},
+					{
+						"name": "Switch1",
+						"description": "",
+						"type": "Switch",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"on": {
+								"value": "@pipeline().parameters.Format",
+								"type": "Expression"
+							},
+							"cases": [
+								{
+									"value": "Excel",
+									"activities": [
+										{
+											"name": "Excel_to_Parquet",
+											"description": "This copy activity transfers data from a Excel file in the raw layer to the bronze layer, converting it into Parquet format during the process.",
+											"type": "Copy",
+											"dependsOn": [],
+											"policy": {
+												"timeout": "0.12:00:00",
+												"retry": 0,
+												"retryIntervalInSeconds": 30,
+												"secureOutput": false,
+												"secureInput": false
+											},
+											"userProperties": [],
+											"typeProperties": {
+												"source": {
+													"type": "ExcelSource",
+													"storeSettings": {
+														"type": "AzureBlobFSReadSettings",
+														"recursive": true,
+														"enablePartitionDiscovery": false
+													}
+												},
+												"sink": {
+													"type": "ParquetSink",
+													"storeSettings": {
+														"type": "AzureBlobFSWriteSettings"
+													},
+													"formatSettings": {
+														"type": "ParquetWriteSettings"
+													}
+												},
+												"enableStaging": false,
+												"translator": {
+													"type": "TabularTranslator",
+													"typeConversion": true,
+													"typeConversionSettings": {
+														"allowDataTruncation": true,
+														"treatBooleanAsNumber": false
+													}
+												}
+											},
+											"inputs": [
+												{
+													"referenceName": "Excel1",
+													"type": "DatasetReference",
+													"parameters": {
+														"File_Name": {
+															"value": "@pipeline().parameters.Raw_File_Name",
+															"type": "Expression"
+														},
+														"File_Path": {
+															"value": "@pipeline().parameters.Raw_File_Path",
+															"type": "Expression"
+														},
+														"Sheet_Name": {
+															"value": "@pipeline().parameters.Sheet_Name",
+															"type": "Expression"
+														}
+													}
+												}
+											],
+											"outputs": [
+												{
+													"referenceName": "Parquet1",
+													"type": "DatasetReference",
+													"parameters": {
+														"File_Name": {
+															"value": "@pipeline().parameters.Bronze_File_Name",
+															"type": "Expression"
+														},
+														"File_Path": {
+															"value": "@pipeline().parameters.Bronze_File_Path",
+															"type": "Expression"
+														}
+													}
+												}
+											]
+										}
+									]
+								},
+								{
+									"value": "parquet",
+									"activities": [
+										{
+											"name": "Parquet_to_Parquet",
+											"description": "This copy activity transfers data from a Parquet file in the raw layer to the bronze layer, converting it into Parquet format during the process.",
+											"type": "Copy",
+											"dependsOn": [],
+											"policy": {
+												"timeout": "0.12:00:00",
+												"retry": 0,
+												"retryIntervalInSeconds": 30,
+												"secureOutput": false,
+												"secureInput": false
+											},
+											"userProperties": [],
+											"typeProperties": {
+												"source": {
+													"type": "ParquetSource",
+													"storeSettings": {
+														"type": "AzureBlobFSReadSettings",
+														"recursive": true,
+														"enablePartitionDiscovery": false
+													},
+													"formatSettings": {
+														"type": "ParquetReadSettings"
+													}
+												},
+												"sink": {
+													"type": "ParquetSink",
+													"storeSettings": {
+														"type": "AzureBlobFSWriteSettings"
+													},
+													"formatSettings": {
+														"type": "ParquetWriteSettings"
+													}
+												},
+												"enableStaging": false,
+												"translator": {
+													"type": "TabularTranslator",
+													"typeConversion": true,
+													"typeConversionSettings": {
+														"allowDataTruncation": true,
+														"treatBooleanAsNumber": false
+													}
+												}
+											},
+											"inputs": [
+												{
+													"referenceName": "Parquet2",
+													"type": "DatasetReference",
+													"parameters": {
+														"File_Name": {
+															"value": "@pipeline().parameters.Raw_File_Name",
+															"type": "Expression"
+														},
+														"File_Path": {
+															"value": "@pipeline().parameters.Raw_File_Path",
+															"type": "Expression"
+														}
+													}
+												}
+											],
+											"outputs": [
+												{
+													"referenceName": "Parquet1",
+													"type": "DatasetReference",
+													"parameters": {
+														"File_Name": {
+															"value": "@pipeline().parameters.Bronze_File_Name",
+															"type": "Expression"
+														},
+														"File_Path": {
+															"value": "@pipeline().parameters.Bronze_File_Path",
+															"type": "Expression"
+														}
+													}
+												}
+											]
+										}
+									]
+								},
+								{
+									"value": "Delimited",
+									"activities": [
+										{
+											"name": "Text_to_Parquet",
+											"description": "This copy activity transfers data from a delimited file in the raw layer to the bronze layer, converting it into Parquet format during the process.",
+											"type": "Copy",
+											"dependsOn": [],
+											"policy": {
+												"timeout": "0.12:00:00",
+												"retry": 0,
+												"retryIntervalInSeconds": 30,
+												"secureOutput": false,
+												"secureInput": false
+											},
+											"userProperties": [],
+											"typeProperties": {
+												"source": {
+													"type": "DelimitedTextSource",
+													"storeSettings": {
+														"type": "AzureBlobFSReadSettings",
+														"recursive": true,
+														"enablePartitionDiscovery": false
+													},
+													"formatSettings": {
+														"type": "DelimitedTextReadSettings"
+													}
+												},
+												"sink": {
+													"type": "ParquetSink",
+													"storeSettings": {
+														"type": "AzureBlobFSWriteSettings"
+													},
+													"formatSettings": {
+														"type": "ParquetWriteSettings"
+													}
+												},
+												"enableStaging": false,
+												"translator": {
+													"type": "TabularTranslator",
+													"typeConversion": true,
+													"typeConversionSettings": {
+														"allowDataTruncation": true,
+														"treatBooleanAsNumber": false
+													}
+												}
+											},
+											"inputs": [
+												{
+													"referenceName": "DelimitedText1",
+													"type": "DatasetReference",
+													"parameters": {
+														"File_Name": {
+															"value": "@pipeline().parameters.Raw_File_Name",
+															"type": "Expression"
+														},
+														"Delimiter": {
+															"value": "@pipeline().parameters.Delimiter",
+															"type": "Expression"
+														},
+														"File_Path": {
+															"value": "@pipeline().parameters.Raw_File_Path",
+															"type": "Expression"
+														}
+													}
+												}
+											],
+											"outputs": [
+												{
+													"referenceName": "Parquet1",
+													"type": "DatasetReference",
+													"parameters": {
+														"File_Name": {
+															"value": "@pipeline().parameters.Bronze_File_Name",
+															"type": "Expression"
+														},
+														"File_Path": {
+															"value": "@pipeline().parameters.Bronze_File_Path",
+															"type": "Expression"
+														}
+													}
+												}
+											]
+										}
+									]
+								},
+								{
+									"value": "json",
+									"activities": [
+										{
+											"name": "JSON_to_Parquet",
+											"description": "This copy activity transfers data from a JSON file in the raw layer to the bronze layer, converting it into Parquet format during the process.",
+											"type": "Copy",
+											"dependsOn": [],
+											"policy": {
+												"timeout": "0.12:00:00",
+												"retry": 0,
+												"retryIntervalInSeconds": 30,
+												"secureOutput": false,
+												"secureInput": false
+											},
+											"userProperties": [],
+											"typeProperties": {
+												"source": {
+													"type": "JsonSource",
+													"storeSettings": {
+														"type": "AzureBlobFSReadSettings",
+														"recursive": true,
+														"enablePartitionDiscovery": false
+													},
+													"formatSettings": {
+														"type": "JsonReadSettings"
+													}
+												},
+												"sink": {
+													"type": "ParquetSink",
+													"storeSettings": {
+														"type": "AzureBlobFSWriteSettings"
+													},
+													"formatSettings": {
+														"type": "ParquetWriteSettings"
+													}
+												},
+												"enableStaging": false
+											},
+											"inputs": [
+												{
+													"referenceName": "Json1",
+													"type": "DatasetReference",
+													"parameters": {
+														"File_Name": {
+															"value": "@pipeline().parameters.Raw_File_Name",
+															"type": "Expression"
+														},
+														"File_Path": {
+															"value": "@pipeline().parameters.Raw_File_Path",
+															"type": "Expression"
+														}
+													}
+												}
+											],
+											"outputs": [
+												{
+													"referenceName": "Parquet1",
+													"type": "DatasetReference",
+													"parameters": {
+														"File_Name": {
+															"value": "@pipeline().parameters.Bronze_File_Name",
+															"type": "Expression"
+														},
+														"File_Path": {
+															"value": "@pipeline().parameters.Bronze_File_Path",
+															"type": "Expression"
+														}
+													}
+												}
+											]
+										}
+									]
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"Raw_File_Name": {
+						"type": "string"
+					},
+					"Raw_File_Path": {
+						"type": "string"
+					},
+					"Delimiter": {
+						"type": "string"
+					},
+					"Bronze_File_Path": {
+						"type": "string"
+					},
+					"Bronze_File_Name": {
+						"type": "string"
+					},
+					"Sheet_Name": {
+						"type": "string"
+					},
+					"Format": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "AW-Practo_1"
+				},
+				"annotations": [],
+				"lastPublishTime": "2026-05-05T16:35:45Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/AzureSqlTable1')]",
+				"[concat(variables('factoryId'), '/datasets/Parquet1')]",
+				"[concat(variables('factoryId'), '/datasets/Excel1')]",
+				"[concat(variables('factoryId'), '/datasets/Parquet2')]",
+				"[concat(variables('factoryId'), '/datasets/DelimitedText1')]",
+				"[concat(variables('factoryId'), '/datasets/Json1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/01-Bronze_to_Silver')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "ParquetSource",
+								"additionalColumns": [
+									{
+										"name": "File_Name",
+										"value": "$$FILENAME"
+									}
+								],
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "ParquetReadSettings"
+								}
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"preCopyScript": {
+									"value": "@{concat('TRUNCATE TABLE ', pipeline().parameters.Silver_Schema_Name,'.',pipeline().parameters.Silver_Table_Name)}",
+									"type": "Expression"
+								},
+								"writeBehavior": "insert",
+								"sqlWriterUseTableLock": false,
+								"disableMetricsCollection": false
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "DS_ADLS_Parquet",
+								"type": "DatasetReference",
+								"parameters": {
+									"File_Name": {
+										"value": "@pipeline().parameters.Bronze_File_Name",
+										"type": "Expression"
+									}
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DS_SQL",
+								"type": "DatasetReference",
+								"parameters": {
+									"Schema_Name": {
+										"value": "@pipeline().parameters.Silver_Schema_Name",
+										"type": "Expression"
+									},
+									"Table_Name": {
+										"value": "@pipeline().parameters.Silver_Table_Name",
+										"type": "Expression"
+									}
+								}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"Bronze_File_Path": {
+						"type": "string"
+					},
+					"Bronze_File_Name": {
+						"type": "string"
+					},
+					"Silver_Schema_Name": {
+						"type": "string"
+					},
+					"Silver_Table_Name": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "AW-Practo_1"
+				},
+				"annotations": [],
+				"lastPublishTime": "2026-05-10T12:23:52Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/DS_ADLS_Parquet')]",
+				"[concat(variables('factoryId'), '/datasets/DS_SQL')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Master')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Config_Lookup",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"dataset": {
+								"referenceName": "ConfigSQL",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"firstRowOnly": false
+						}
+					},
+					{
+						"name": "ForEach1",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Config_Lookup",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Config_Lookup').output.value",
+								"type": "Expression"
+							},
+							"isSequential": false,
+							"batchCount": 20,
+							"activities": [
+								{
+									"name": "Exec_Raw_to_Bronze",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"policy": {
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "00-Raw_to_Bronze",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": false,
+										"parameters": {
+											"Raw_File_Name": {
+												"value": "@item().FileName",
+												"type": "Expression"
+											},
+											"Raw_File_Path": {
+												"value": "@item().RawPath",
+												"type": "Expression"
+											},
+											"Delimiter": {
+												"value": "@item().Delimiter",
+												"type": "Expression"
+											},
+											"Bronze_File_Path": {
+												"value": "@item().BronzePath",
+												"type": "Expression"
+											},
+											"Bronze_File_Name": {
+												"value": "@item().BronzeFileName",
+												"type": "Expression"
+											},
+											"Sheet_Name": {
+												"value": "@item().SheetName",
+												"type": "Expression"
+											},
+											"Format": {
+												"value": "@item().Format",
+												"type": "Expression"
+											}
+										}
+									}
+								},
+								{
+									"name": "Exec_Bronze_to_Silver",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "Exec_Raw_to_Bronze",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "01-Bronze_to_Silver",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"Bronze_File_Path": {
+												"value": "@item().BronzePath",
+												"type": "Expression"
+											},
+											"Bronze_File_Name": {
+												"value": "@item().BronzeFileName",
+												"type": "Expression"
+											},
+											"Silver_Schema_Name": {
+												"value": "@item().SilverSchema",
+												"type": "Expression"
+											},
+											"Silver_Table_Name": {
+												"value": "@item().SilverTableName",
+												"type": "Expression"
+											}
+										}
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "AW-Practo_1"
+				},
+				"annotations": [],
+				"lastPublishTime": "2026-05-08T17:59:07Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ConfigSQL')]",
+				"[concat(variables('factoryId'), '/pipelines/00-Raw_to_Bronze')]",
+				"[concat(variables('factoryId'), '/pipelines/01-Bronze_to_Silver')]"
+			]
+		}
+	]
+}
